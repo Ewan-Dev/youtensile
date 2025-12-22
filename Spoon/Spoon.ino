@@ -48,11 +48,12 @@ void loop() {
   gyroDPSZ = gyroDPSZ - gyroOffsetZ;
 
   accelPitch = accelPitch - accelOffsetX;
-  accelRoll - accelRoll - accelOffsetY;
+  accelRoll = accelRoll - accelOffsetY;
 
 
   float alpha = 0.95; // weighting
-  float pitchFiltered, rollFiltered;
+  float pitchFiltered = accelPitch;
+  float rollFiltered = accelRoll;
 
   // Finds real values
   complementaryFilter(gyroDPSX, accelPitch, alpha, dt, pitchFiltered);
@@ -63,5 +64,4 @@ void loop() {
     Serial.print("/");
     Serial.print("filtered Roll:");
     Serial.println(rollFiltered);
-
 }
