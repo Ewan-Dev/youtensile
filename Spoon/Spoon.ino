@@ -1,20 +1,22 @@
 #include <Servo.h>
+#include <mpu6050.h> /* My library*/
+
+#define ADDRESS  0x68
+float gyroRawX, gyroRawY, gyroRawZ;
 
 Servo servoPitch;
 Servo servoRoll;
 
 void setup() {
+  Serial.begin(115200);
   servoPitch.attach(3);
   servoRoll.attach(5);
+  wakeSensor(ADDRESS);
 }
 
 void loop() {
-  servoPitch.write(0);
-  delay(1000);
-  servoPitch.write(180);
-  delay(1000);
-  servoRoll.write(0);
-  delay(1000);
-  servoRoll.write(180);
-  delay(1000);
+  readGyroData(ADDRESS, gyroRawX, gyroRawY, gyroRawZ);
+  Serial.println(gyroRawX);
+  Serial.println(gyroRawY);
+  Serial.println(gyroRawZ);
 }
