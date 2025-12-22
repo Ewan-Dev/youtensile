@@ -3,6 +3,7 @@
 
 #define ADDRESS  0x68
 float gyroRawX, gyroRawY, gyroRawZ;
+float accelRawX, accelRawY, accelRawZ;
 
 Servo servoPitch;
 Servo servoRoll;
@@ -16,7 +17,8 @@ void setup() {
 
 void loop() {
   readGyroData(ADDRESS, gyroRawX, gyroRawY, gyroRawZ);
-  Serial.println(gyroRawX);
-  Serial.println(gyroRawY);
-  Serial.println(gyroRawZ);
+  readAccelData(ADDRESS, accelRawX, accelRawY, accelRawZ);
+  Serial.println(accelRawX);
+  Serial.println(accelRawY);
+  Serial.println(accelRawZ);
 }
