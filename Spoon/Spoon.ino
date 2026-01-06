@@ -17,8 +17,8 @@ void setup() {
   Serial.begin(115200);
 
   /* Servo setup */
-  servoPitch.attach(3);
-  servoRoll.attach(5);
+  servoPitch.attach(5);
+  servoRoll.attach(3);
 
   wakeSensor(ADDRESS);
 
@@ -61,7 +61,9 @@ void loop() {
 
     Serial.print("filtered pitch:");
     Serial.print(pitchFiltered);
+    servoPitch.write(pitchFiltered);
     Serial.print("/");
     Serial.print("filtered Roll:");
     Serial.println(rollFiltered);
+    servoRoll.write(rollFiltered);
 }
