@@ -58,12 +58,13 @@ void loop() {
   // Finds real values
   complementaryFilter(gyroDPSX, accelPitch, alpha, dt, pitchFiltered);
   complementaryFilter(gyroDPSY, accelRoll, alpha, dt, rollFiltered);
-
+  float pitchFilteredMapped = map(pitchFiltered, 0, 360, 0, 180);
+  float rollFilteredMapped = map(rollFiltered, 0, 360, 0, 180);
     Serial.print("filtered pitch:");
     Serial.print(pitchFiltered);
-    servoPitch.write(pitchFiltered);
+    servoPitch.write(pitchFilteredMapped);
     Serial.print("/");
     Serial.print("filtered Roll:");
     Serial.println(rollFiltered);
-    servoRoll.write(rollFiltered);
+    servoRoll.write(rollFilteredMapped);
 }
