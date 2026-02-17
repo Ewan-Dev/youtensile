@@ -25,10 +25,17 @@ void setup() {
   /* Find offsets */
   calculateGyroOffset(ADDRESS, gyroOffsetX, gyroOffsetY, gyroOffsetZ);
   calculateAccelOffset(ADDRESS, accelOffsetX, accelOffsetY);
+
+  servoPitch.write(90);
+  servoRoll.write(90);
+  delay(2000);
 }
 
 void loop() {
+  float rollAccumulated = 0;
+  float pitchAccumulated = 0;
 
+  for (int i = 0; i < 20; i++){
   // Working out delta time
   static unsigned long lastTime = millis();
   unsigned long currentTime = millis();
@@ -58,13 +65,13 @@ void loop() {
   // Finds real values
   complementaryFilter(gyroDPSX, accelPitch, alpha, dt, pitchFiltered);
   complementaryFilter(gyroDPSY, accelRoll, alpha, dt, rollFiltered);
-  float pitchFilteredMapped = map(pitchFiltered, 0, 360, 0, 180);
-  float rollFilteredMapped = map(rollFiltered, 0, 360, 0, 180);
-    Serial.print("filtered pitch:");
-    Serial.print(pitchFiltered);
-    servoPitch.write(pitchFilteredMapped);
-    Serial.print("/");
-    Serial.print("filtered Roll:");
-    Serial.println(rollFiltered);
-    servoRoll.write(rollFilteredMapped);
+  float pitchFilteredMapped = round(map(pitchFiltered, -90, 90, 0, 180));
+  float rollFilteredMapped = round(map(rollFiltered, -90, 90, 0, 200));
+  rollAccumulated += rollFilteredMapped;
+  pitchAccumulated += pitchFilteredMapped;
+  }
+  float finalPitch = pitchAccumulated/20;
+  float finalRoll = rollAccumulated/20;
+    servoPitch.write(finalPitch);
+    servoRoll.write(finalRoll);
 }
