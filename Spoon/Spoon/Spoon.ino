@@ -10,6 +10,9 @@ double gyroOffsetX, gyroOffsetY, gyroOffsetZ;
 double accelOffsetX, accelOffsetY;
 float accelPitch, accelRoll;
 
+static float pitchFiltered = 0;
+static float rollFiltered = 0;
+
 Servo servoPitch;
 Servo servoRoll;
 
@@ -17,8 +20,8 @@ void setup() {
   Serial.begin(115200);
 
   /* Servo setup */
-  servoPitch.attach(5);
-  servoRoll.attach(3);
+  servoPitch.attach(3);
+  servoRoll.attach(5);
 
   wakeSensor(ADDRESS);
 
@@ -35,13 +38,12 @@ void loop() {
   float rollAccumulated = 0;
   float pitchAccumulated = 0;
 
-  for (int i = 0; i < 20; i++){
-  // Working out delta time
-  static unsigned long lastTime = millis();
-  unsigned long currentTime = millis();
-  float dt = (currentTime - lastTime) / 1000; // Finds delta time
-  lastTime = currentTime; // For next iteration
+static unsigned long lastTime = micros();
+unsigned long currentTime = micros();
+float dt = (currentTime - lastTime) / 1000000.0;
+lastTime = currentTime;// For next iteration
 
+  // Working out delta time
   /* Work out angle values*/
   readGyroData(ADDRESS, gyroRawX, gyroRawY, gyroRawZ);
   readAccelData(ADDRESS, accelRawX, accelRawY, accelRawZ);
@@ -58,20 +60,24 @@ void loop() {
   accelRoll = accelRoll - accelOffsetY;
 
 
-  float alpha = 0.95; // weighting
-  float pitchFiltered = accelPitch;
-  float rollFiltered = accelRoll;
 
+  float alpha = 0.96; // weighting
   // Finds real values
   complementaryFilter(gyroDPSX, accelPitch, alpha, dt, pitchFiltered);
   complementaryFilter(gyroDPSY, accelRoll, alpha, dt, rollFiltered);
-  float pitchFilteredMapped = round(map(pitchFiltered, -90, 90, 0, 180));
-  float rollFilteredMapped = round(map(rollFiltered, -90, 90, 0, 200));
-  rollAccumulated += rollFilteredMapped;
-  pitchAccumulated += pitchFilteredMapped;
-  }
-  float finalPitch = pitchAccumulated/20;
-  float finalRoll = rollAccumulated/20;
-    servoPitch.write(finalPitch);
-    servoRoll.write(finalRoll);
+
+float pitchFilteredMapped = map(pitchFiltered, -90, 90, 180, 0);
+float rollFilteredMapped  = map(rollFiltered,  -90, 90, 0, 180);
+
+static float pitchOut = 90;
+static float rollOut = 90;
+
+float smoothing = 0.25;
+
+pitchOut += smoothing * (pitchFilteredMapped - pitchOut);
+rollOut  += smoothing * (rollFilteredMapped  - rollOut);
+
+servoPitch.write(constrain(pitchOut, 0, 180));
+servoRoll.write(constrain(rollOut, 0, 180));
+
 }
